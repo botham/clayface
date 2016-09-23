@@ -21,9 +21,6 @@ public class FacebookBotApi {
     this.bot = bot;
   }
 
-
-  //TODO:
-  // Facebook şu şekilde vuruyor /webhook?hub.mode=subscribe&hub.challenge=683664693&hub.verify_token=nicer_dicer
   public BotHttpResult verify(Map<String, String> urlFields) {
     if (urlFields != null && urlFields.containsKey("hub.mode") && urlFields.containsKey("hub.verify_token") && urlFields.containsKey("hub.challenge")) {
       String verifyToken = urlFields.get("hub.verify_token");
