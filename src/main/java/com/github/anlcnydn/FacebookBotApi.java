@@ -38,7 +38,7 @@ public class FacebookBotApi {
    * @return
    */
   public BotHttpResult receive(String request) {
-    //TODO: Buraya requesti json haline getirip to stringini almak gerekiyor yoksa patlıyor
+
     JSONObject entireRequest = Convert.toJson(request);
     if(entireRequest != null && bot.onUpdateReceived(new Update(entireRequest))) {
       return new BotHttpResult(Constants.OK);
