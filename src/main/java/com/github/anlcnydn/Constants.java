@@ -8,5 +8,5 @@ public class Constants {
 
   public static final String URL = "https://graph.facebook.com/v2.6/me/messages?access_token=";
 
-  public static final String JSON_EXCEPTION_ERROR_MESSAGE = "Something went wrong trying to convert to json.";
+  public static final String JSON_EXCEPTION_ERROR_MESSAGE = "Something went wrong while trying to convert to json.";
 }

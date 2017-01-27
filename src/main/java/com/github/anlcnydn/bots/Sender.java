@@ -45,7 +45,7 @@ public abstract class Sender {
             .setMaxConnTotal(100)
             .build();
 
-    RequestConfig.Builder configBuilder = RequestConfig.copy(RequestConfig.custom().build());
+    RequestConfig.Builder configBuilder = RequestConfig.custom();
 
     this.requestConfig = configBuilder.setSocketTimeout(75000)
             .setConnectTimeout(75000)
@@ -65,7 +65,7 @@ public abstract class Sender {
     return send(message);
   }
 
-  private boolean send(Message message) {
+  boolean send(Message message) {
     String responseContent;
     try {
       String url = Constants.URL + getBotToken();
@@ -76,6 +76,7 @@ public abstract class Sender {
       try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
         HttpEntity ht = response.getEntity();
         BufferedHttpEntity buf = new BufferedHttpEntity(ht);
+        // TODO: catch ParseException and ClientProtocolException
         responseContent = EntityUtils.toString(buf, StandardCharsets.UTF_8);
       }
     } catch (IOException e) {
@@ -100,7 +101,7 @@ public abstract class Sender {
    * @param message
    * @return
    */
-  private boolean sendUploadableMessage(Message message) {
+  boolean sendUploadableMessage(Message message) {
     String responseContent;
     try {
       String url = Constants.URL + getBotToken();
