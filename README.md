@@ -15,7 +15,7 @@ Basically a facebook bot needs to get and send messages.
 
 Just create your own bot class and extend ClayFaceBot. 
 
-```
+``` java
 import com.github.anlcnydn.FacebookApiException;
 import com.github.anlcnydn.bots.ClayFaceBot;
 import com.github.anlcnydn.models.Message;
@@ -51,7 +51,7 @@ host's "/webhook" url(For ex: https://example.com/webhook?hub.mode=subscribe&hub
 
 In where you get the GET request, you need to put the parameters in a Map<String, String[]>. 
 
-```
+``` java
     //Lets create a dummy map.
     Map<String, String[]> map = new HashMap<>();
     map.put("hub.mode", "subscribe");
@@ -76,7 +76,7 @@ In where you get the GET request, you need to put the parameters in a Map<String
 Messages are sent /webhook url as POST request with a JSON body. You need to pass 
 body as string to api.receive() method.
 
-```
+``` java
     String request = request().body().asJson().toString();
     FacebookBotApi api = new FacebookBotApi(new FacebookBot());
     
@@ -90,7 +90,7 @@ body as string to api.receive() method.
 
 Messages arrive our bots onUpdateReceived() method.
 
-```
+``` java
   @Override
   public boolean onUpdateReceived(Update update) {
     if(update.hasMessage()) {
