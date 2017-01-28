@@ -5,7 +5,7 @@ import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-public class FileFormatter extends Formatter{
+public class FileFormatter extends Formatter {
   @Override
   public String format(LogRecord record) {
     final LocalDateTime currentDate = LocalDateTime.now();
@@ -14,7 +14,8 @@ public class FileFormatter extends Formatter{
     if (record.getThrown() == null) {
       result = logMsgToFile(record.getLevel(), record.getMessage(), dateForLog);
     } else {
-      result = logThrowableToFile(record.getLevel(), record.getMessage(), record.getThrown(), dateForLog);
+      result = logThrowableToFile(record.getLevel(), record.getMessage(), record.getThrown(),
+          dateForLog);
     }
     return result;
   }
@@ -35,8 +36,10 @@ public class FileFormatter extends Formatter{
     return String.format("%s{%s} %s\n", dateForLog, level.toString(), msg);
   }
 
-  private static String logThrowableToFile(Level level, String message, Throwable throwable, String dateForLog) {
-    String throwableLog = String.format("%s{%s} %s - %s\n", dateForLog, level.toString(), message, throwable.toString());
+  private static String logThrowableToFile(Level level, String message, Throwable throwable,
+      String dateForLog) {
+    String throwableLog = String.format("%s{%s} %s - %s\n", dateForLog, level.toString(), message,
+        throwable.toString());
     for (StackTraceElement element : throwable.getStackTrace()) {
       throwableLog += "\tat " + element + "\n";
     }

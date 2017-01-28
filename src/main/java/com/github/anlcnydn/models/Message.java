@@ -46,7 +46,7 @@ public class Message implements BotApiObject {
 
   private Message(String recipientId, Attachment attachment) {
     this.recipientId = recipientId;
-    if(attachments == null) {
+    if (attachments == null) {
       attachments = new ArrayList<>();
     }
     attachments.add(attachment);
@@ -71,7 +71,7 @@ public class Message implements BotApiObject {
       if (node.getJSONObject(MESSAGE).has(ATTACHMENT)) {
         JSONArray attachmentsArray = node.getJSONObject(MESSAGE).getJSONArray(ATTACHMENT);
         for (int i = 0; i < attachmentsArray.length(); i++) {
-          if(attachments == null) {
+          if (attachments == null) {
             attachments = new ArrayList<>();
           }
           attachments.add(new Attachment(attachmentsArray.getJSONObject(i)));
@@ -150,7 +150,7 @@ public class Message implements BotApiObject {
       whole.put(RECIPIENT, recipientIdObj);
       whole.put(MESSAGE, messageContent);
       return whole;
-    } catch(JSONException e) {
+    } catch (JSONException e) {
       Log.error(LOG_TAG + ".toJson()", Constants.JSON_EXCEPTION_ERROR_MESSAGE, e);
       return null;
     }
@@ -170,27 +170,26 @@ public class Message implements BotApiObject {
     JSONObject messageContent = new JSONObject();
     JSONArray attachmentsArray = new JSONArray();
     try {
-      if(hasText()) {
+      if (hasText()) {
         messageContent.put(TEXT, text);
       }
-      if(hasAttachment()) {
+      if (hasAttachment()) {
         for (Attachment a : attachments) {
           attachmentsArray.put(a.toJson());
         }
         messageContent.put(ATTACHMENT, attachmentsArray.getJSONObject(0));
       }
-      if(hasUploadable()) {
+      if (hasUploadable()) {
         JSONObject uploadableObj = new JSONObject();
         uploadableObj.put(TYPE, uploadable.getType());
         uploadableObj.put(PAYLOAD, new JSONObject());
-        messageContent.put(ATTACHMENT,uploadableObj);
+        messageContent.put(ATTACHMENT, uploadableObj);
       }
-    } catch(JSONException e) {
+    } catch (JSONException e) {
       Log.error(LOG_TAG + ".getMessageFieldAsJson()", Constants.JSON_EXCEPTION_ERROR_MESSAGE, e);
     }
     return messageContent;
   }
-
 
 
 

@@ -57,7 +57,7 @@ public class Button {
    */
   public Button(String type, String title, AttachmentPayload payload) {
     this.type = type;
-    this.title = title.length()>20 ? title.substring(0, 20) : title;
+    this.title = title.length() > 20 ? title.substring(0, 20) : title;
     this.payload = payload;
   }
 
@@ -66,7 +66,7 @@ public class Button {
     try {
       button.put(TYPE, type);
       button.put(TITLE, title);
-      if(type.equals(WEB_URL)) {
+      if (type.equals(WEB_URL)) {
         button.put(URL, url);
       } else {
         button.put(PAYLOAD, payload.toJson());

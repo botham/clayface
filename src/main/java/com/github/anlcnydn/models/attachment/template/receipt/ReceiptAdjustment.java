@@ -35,10 +35,10 @@ public class ReceiptAdjustment {
   public JSONObject toJson() {
     JSONObject adjustment = new JSONObject();
     try {
-      if(name != null) {
+      if (name != null) {
         adjustment.put(NAME, name);
       }
-      if(amount != 0) {
+      if (amount != 0) {
         adjustment.put(AMOUNT, amount);
       }
     } catch (JSONException e) {

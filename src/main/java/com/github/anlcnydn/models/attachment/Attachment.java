@@ -29,10 +29,8 @@ public class Attachment implements BotApiObject {
     try {
       this.type = node.getString(TYPE);
       if (type.equals(LOCATION)) {
-        this.payload = Location.create(
-                node.getJSONObject(PAYLOAD).getDouble(LAT),
-                node.getJSONObject(PAYLOAD).getDouble(LONG)
-        );
+        this.payload = Location.create(node.getJSONObject(PAYLOAD).getDouble(LAT),
+            node.getJSONObject(PAYLOAD).getDouble(LONG));
       } else {
         this.payload = Multimedia.create(node.getJSONObject(PAYLOAD).getString(URL));
       }

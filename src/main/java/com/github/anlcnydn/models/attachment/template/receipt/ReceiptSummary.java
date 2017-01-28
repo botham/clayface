@@ -47,16 +47,16 @@ public class ReceiptSummary {
   public JSONObject toJson() {
     JSONObject summary = new JSONObject();
     try {
-      if(subtotal != 0) {
+      if (subtotal != 0) {
         summary.put(SUBTOTAL, subtotal);
       }
-      if(shippingCost != 0) {
+      if (shippingCost != 0) {
         summary.put(SHIPPING_COST, shippingCost);
       }
-      if(totalTax != 0) {
+      if (totalTax != 0) {
         summary.put(TOTAL_TAX, totalTax);
       }
-      summary.put(TOTAL_COST, totalCost+"");
+      summary.put(TOTAL_COST, totalCost + "");
     } catch (JSONException e) {
       Log.error(LOG_TAG + ".toJson()", Constants.JSON_EXCEPTION_ERROR_MESSAGE, e);
     }

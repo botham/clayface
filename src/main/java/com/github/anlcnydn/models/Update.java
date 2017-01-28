@@ -36,7 +36,7 @@ public class Update implements BotApiObject {
       this.updateTime = new Date(node.getJSONArray(ENTRY).getJSONObject(0).getLong(TIME));
       this.messages = new ArrayList<Message>();
       JSONArray messaging = node.getJSONArray(ENTRY).getJSONObject(0).getJSONArray(MESSAGING);
-      for(int i = 0; i < messaging.length(); i++) {
+      for (int i = 0; i < messaging.length(); i++) {
         JSONObject message = messaging.getJSONObject(i);
         if (message.has(MESSAGE)) {
           messages.add(new Message(message));

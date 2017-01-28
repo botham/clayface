@@ -6,9 +6,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-  ConvertTest.class,
-  SenderTest.class
-})
+@Suite.SuiteClasses({ConvertTest.class, SenderTest.class})
 public class AllTests {
 }

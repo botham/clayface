@@ -56,17 +56,17 @@ public class ReceiptElement {
     JSONObject element = new JSONObject();
     try {
       element.put(TITLE, title);
-      if(subtitle != null) {
+      if (subtitle != null) {
         element.put(SUBTITLE, subtitle);
       }
-      if(quantity > 0) {
+      if (quantity > 0) {
         element.put(QUANTITY, quantity);
       }
       element.put(PRICE, price);
-      if(currency != null) {
+      if (currency != null) {
         element.put(CURRENCY, currency);
       }
-      if(imageUrl != null) {
+      if (imageUrl != null) {
         element.put(IMAGE_URL, imageUrl);
       }
 
