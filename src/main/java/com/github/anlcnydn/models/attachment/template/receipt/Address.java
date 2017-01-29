@@ -30,7 +30,8 @@ public class Address {
     this.country = country;
   }
 
-  public static Address create(String street1, String city, String postalCode, String state, String country) {
+  public static Address create(String street1, String city, String postalCode, String state,
+      String country) {
     return new Address(street1, city, postalCode, state, country);
   }
 
@@ -43,7 +44,7 @@ public class Address {
     JSONObject address = new JSONObject();
     try {
       address.put(STREET_1, street1);
-      if(street2 != null) {
+      if (street2 != null) {
         address.put(STREET_2, street2);
       }
       address.put(CITY, city);
@@ -51,7 +52,7 @@ public class Address {
       address.put(STATE, state);
       address.put(COUNTRY, country);
     } catch (JSONException e) {
-      Log.error(LOG_TAG+".toJson()", Constants.JSON_EXCEPTION_ERROR_MESSAGE, e);
+      Log.error(LOG_TAG + ".toJson()", Constants.JSON_EXCEPTION_ERROR_MESSAGE, e);
     }
     return address;
   }

@@ -26,10 +26,10 @@ public class GenericTemplate implements AttachmentPayload {
   }
 
   public GenericTemplate addElement(Element element) {
-    if(elements == null) {
+    if (elements == null) {
       elements = new ArrayList<>();
     }
-    if(elements.size() < 10) {
+    if (elements.size() < 10) {
       elements.add(element);
     }
     return this;
@@ -40,9 +40,9 @@ public class GenericTemplate implements AttachmentPayload {
     JSONObject generic = new JSONObject();
     try {
       generic.put(TEMPLATE_TYPE, getTemplateType());
-      if(!elements.isEmpty()) {
+      if (!elements.isEmpty()) {
         JSONArray elementsArr = new JSONArray();
-        for(Element e: elements) {
+        for (Element e : elements) {
           elementsArr.put(e.toJson());
         }
         generic.put(ELEMENTS, elementsArr);

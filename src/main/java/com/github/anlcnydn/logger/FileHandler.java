@@ -31,7 +31,8 @@ public class FileHandler extends java.util.logging.FileHandler {
     setFormatter(new FileFormatter());
   }
 
-  public FileHandler(String pattern, int limit, int count, boolean append) throws IOException, SecurityException {
+  public FileHandler(String pattern, int limit, int count, boolean append)
+      throws IOException, SecurityException {
     super(pattern, limit, count, append);
     setFormatter(new FileFormatter());
   }

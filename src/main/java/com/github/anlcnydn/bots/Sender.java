@@ -39,26 +39,22 @@ public abstract class Sender {
   private volatile RequestConfig requestConfig;
 
   Sender() {
-    this.httpclient = HttpClientBuilder.create()
-            .setSSLHostnameVerifier(new NoopHostnameVerifier())
-            .setConnectionTimeToLive(70, TimeUnit.SECONDS)
-            .setMaxConnTotal(100)
-            .build();
+    this.httpclient = HttpClientBuilder.create().setSSLHostnameVerifier(new NoopHostnameVerifier())
+        .setConnectionTimeToLive(70, TimeUnit.SECONDS).setMaxConnTotal(100).build();
 
     RequestConfig.Builder configBuilder = RequestConfig.custom();
 
-    this.requestConfig = configBuilder.setSocketTimeout(75000)
-            .setConnectTimeout(75000)
-            .setConnectionRequestTimeout(75000).build();
+    this.requestConfig = configBuilder.setSocketTimeout(75000).setConnectTimeout(75000)
+        .setConnectionRequestTimeout(75000).build();
   }
 
   public abstract String getBotToken();
 
-  public boolean sendMessage(Message message) throws FacebookApiException{
-    if(message == null) {
+  public boolean sendMessage(Message message) throws FacebookApiException {
+    if (message == null) {
       throw new FacebookApiException();
     }
-    if(message.hasUploadable()) {
+    if (message.hasUploadable()) {
       Log.debug(LOG_TAG, "Uploadable");
       return sendUploadableMessage(message);
     }
@@ -72,7 +68,8 @@ public abstract class Sender {
       HttpPost httpPost = new HttpPost(url);
       httpPost.setConfig(requestConfig);
       httpPost.addHeader("charset", StandardCharsets.UTF_8.name());
-      httpPost.setEntity(new StringEntity(message.toJson().toString(), ContentType.APPLICATION_JSON));
+      httpPost
+          .setEntity(new StringEntity(message.toJson().toString(), ContentType.APPLICATION_JSON));
       try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
         HttpEntity ht = response.getEntity();
         BufferedHttpEntity buf = new BufferedHttpEntity(ht);
@@ -80,17 +77,20 @@ public abstract class Sender {
         responseContent = EntityUtils.toString(buf, StandardCharsets.UTF_8);
       }
     } catch (IOException e) {
-      Log.error(LOG_TAG + ".send()", "Something went wrong while trying to send a post request.",e);
+      Log.error(LOG_TAG + ".send()", "Something went wrong while trying to send a post request.",
+          e);
       return false;
     }
 
     try {
       JSONObject jsonObject = new JSONObject(responseContent);
-      if (jsonObject.has(MESSAGE_ID) && jsonObject.getString(RECIPIENT_ID).equals(message.getRecipientId())) {
+      if (jsonObject.has(MESSAGE_ID)
+          && jsonObject.getString(RECIPIENT_ID).equals(message.getRecipientId())) {
         Log.debug(LOG_TAG, "Message successfully sent");
       }
     } catch (JSONException e) {
-      Log.error(LOG_TAG + ".send()", "Something went wrong while trying to convert response to json", e);
+      Log.error(LOG_TAG + ".send()",
+          "Something went wrong while trying to convert response to json", e);
       return false;
     }
     return true;
@@ -112,13 +112,16 @@ public abstract class Sender {
       builder.addTextBody(MESSAGE, message.getMessageFieldAsJson().toString());
       switch (message.getUploadable().getType()) {
         case IMAGE:
-          builder.addBinaryBody(FILEDATA, message.getUploadable().asFile(), ContentType.create("image/png"), message.getUploadable().asFile().getName());
+          builder.addBinaryBody(FILEDATA, message.getUploadable().asFile(),
+              ContentType.create("image/png"), message.getUploadable().asFile().getName());
           break;
         case AUDIO:
-          builder.addBinaryBody(FILEDATA, message.getUploadable().asFile(), ContentType.create("audio/mp3"), message.getUploadable().asFile().getName());
+          builder.addBinaryBody(FILEDATA, message.getUploadable().asFile(),
+              ContentType.create("audio/mp3"), message.getUploadable().asFile().getName());
           break;
         case VIDEO:
-          builder.addBinaryBody(FILEDATA, message.getUploadable().asFile(), ContentType.create("video/mp4"), message.getUploadable().asFile().getName());
+          builder.addBinaryBody(FILEDATA, message.getUploadable().asFile(),
+              ContentType.create("video/mp4"), message.getUploadable().asFile().getName());
           break;
         case FILE:
           builder.addBinaryBody(FILEDATA, message.getUploadable().asFile());
@@ -135,19 +138,22 @@ public abstract class Sender {
         responseContent = EntityUtils.toString(buf, StandardCharsets.UTF_8);
         Log.debug(LOG_TAG, responseContent);
       }
-    } catch(IOException e) {
-      Log.error(LOG_TAG + ".sendUploadableMessage()", "Something went wrong while trying to send a post request with multipart upload.",e);
+    } catch (IOException e) {
+      Log.error(LOG_TAG + ".sendUploadableMessage()",
+          "Something went wrong while trying to send a post request with multipart upload.", e);
       return false;
     }
 
     try {
       JSONObject jsonObject = new JSONObject(responseContent);
-      if (jsonObject.has(MESSAGE_ID) && jsonObject.getString(RECIPIENT_ID).equals(message.getRecipientId())) {
+      if (jsonObject.has(MESSAGE_ID)
+          && jsonObject.getString(RECIPIENT_ID).equals(message.getRecipientId())) {
         Log.debug(LOG_TAG, "JSON: " + jsonObject.toString(2));
         Log.debug(LOG_TAG, "Message successfully sent ");
       }
     } catch (JSONException e) {
-      Log.error(LOG_TAG + ".sendUploadableMessage()", "Something went wrong while trying to convert response to json", e);
+      Log.error(LOG_TAG + ".sendUploadableMessage()",
+          "Something went wrong while trying to convert response to json", e);
       return false;
     }
 

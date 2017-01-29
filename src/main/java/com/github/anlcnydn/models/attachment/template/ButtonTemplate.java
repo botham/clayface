@@ -26,10 +26,10 @@ public class ButtonTemplate implements AttachmentPayload {
   }
 
   public ButtonTemplate addButton(Button button) {
-    if(buttons == null) {
+    if (buttons == null) {
       buttons = new ArrayList<>();
     }
-    if(buttons.size() < 3) {
+    if (buttons.size() < 3) {
       buttons.add(button);
     }
     return this;
@@ -43,6 +43,7 @@ public class ButtonTemplate implements AttachmentPayload {
   public String getTemplateType() {
     return "button";
   }
+
   @Override
   public JSONObject toJson() {
     JSONObject button = new JSONObject();
@@ -50,7 +51,7 @@ public class ButtonTemplate implements AttachmentPayload {
     try {
       button.put(TEMPLATE_TYPE, getTemplateType());
       button.put(TEXT, text);
-      for(Button b: buttons) {
+      for (Button b : buttons) {
         buttonsArr.put(b.toJson());
       }
       button.put(BUTTONS, buttonsArr);

@@ -60,7 +60,7 @@ public class Element {
   }
 
   public Element addButton(Button button) {
-    if(buttons.size() < 3) {
+    if (buttons.size() < 3) {
       buttons.add(button);
     }
     return this;
@@ -70,18 +70,18 @@ public class Element {
     JSONObject element = new JSONObject();
     try {
       element.put(TITLE, title);
-      if(itemUrl != null) {
+      if (itemUrl != null) {
         element.put(ITEM_URL, itemUrl);
       }
-      if(imageUrl != null) {
+      if (imageUrl != null) {
         element.put(IMAGE_URL, imageUrl);
       }
-      if(subtitle != null) {
+      if (subtitle != null) {
         element.put(SUBTITLE, subtitle);
       }
-      if(!buttons.isEmpty()) {
+      if (!buttons.isEmpty()) {
         JSONArray buttonsArr = new JSONArray();
-        for(Button b : buttons) {
+        for (Button b : buttons) {
           buttonsArr.put(b.toJson());
         }
         element.put(BUTTONS, buttonsArr);

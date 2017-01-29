@@ -40,7 +40,7 @@ public class Location implements AttachmentPayload {
       actual.put(LAT, lat);
       actual.put(LONG, lng);
       payload.put("coordinates", actual);
-    } catch(JSONException e) {
+    } catch (JSONException e) {
       Log.error(LOG_TAG + ".toJson()", Constants.JSON_EXCEPTION_ERROR_MESSAGE, e);
     }
     return payload;
