@@ -114,16 +114,16 @@ public abstract class Sender {
       Uploadable uploadable = message.getUploadable().get();
       switch (uploadable.getType()) {
         case IMAGE:
-          builder.addBinaryBody(FILEDATA, uploadable.asFile(),
-              ContentType.create("image/png"), uploadable.asFile().getName());
+          builder.addBinaryBody(FILEDATA, uploadable.asFile(), ContentType.create("image/png"),
+              uploadable.asFile().getName());
           break;
         case AUDIO:
-          builder.addBinaryBody(FILEDATA, uploadable.asFile(),
-              ContentType.create("audio/mp3"), uploadable.asFile().getName());
+          builder.addBinaryBody(FILEDATA, uploadable.asFile(), ContentType.create("audio/mp3"),
+              uploadable.asFile().getName());
           break;
         case VIDEO:
-          builder.addBinaryBody(FILEDATA, uploadable.asFile(),
-              ContentType.create("video/mp4"), uploadable.asFile().getName());
+          builder.addBinaryBody(FILEDATA, uploadable.asFile(), ContentType.create("video/mp4"),
+              uploadable.asFile().getName());
           break;
         case FILE:
           builder.addBinaryBody(FILEDATA, uploadable.asFile());

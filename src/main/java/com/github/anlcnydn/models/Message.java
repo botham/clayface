@@ -34,7 +34,7 @@ public class Message implements BotApiObject {
 
 
   private String recipientId;
-  
+
   private Optional<Date> timestamp = Optional.empty();
   private Optional<String> messageId = Optional.empty();
   private Optional<Integer> seqNumber = Optional.empty();
@@ -68,15 +68,15 @@ public class Message implements BotApiObject {
       this.recipientId = node.getJSONObject(RECIPIENT).getString(ID);
       this.timestamp = Optional.of(new Date(node.getLong(TIMESTAMP)));
 
-      if(node.has(MESSAGE)) {
+      if (node.has(MESSAGE)) {
         JSONObject message = node.getJSONObject(MESSAGE);
         this.messageId = Optional.of(message.getString(MID));
         this.seqNumber = Optional.of(message.getInt(SEQ));
 
-        if(message.has(TEXT)) {
+        if (message.has(TEXT)) {
           this.text = Optional.of(message.getString(TEXT));
         }
-        if(message.has(ATTACHMENT)) {
+        if (message.has(ATTACHMENT)) {
           ArrayList<Attachment> atts = new ArrayList<>();
           JSONArray attachmentsArray = message.getJSONArray(ATTACHMENT);
           for (int i = 0; i < attachmentsArray.length(); i++) {
@@ -193,7 +193,7 @@ public class Message implements BotApiObject {
         return jsArray;
       });
 
-      if(attachmentsArray.isPresent()) {
+      if (attachmentsArray.isPresent()) {
         messageContent.put(ATTACHMENT, attachmentsArray.get());
       }
       if (hasUploadable()) {
