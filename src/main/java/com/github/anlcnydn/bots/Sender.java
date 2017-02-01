@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public abstract class Sender {
@@ -103,15 +104,14 @@ public abstract class Sender {
    * @return
    */
   boolean sendUploadableMessage(Message message) {
-    String responseContent;
-    try {
-      String url = Constants.URL + getBotToken();
-      HttpPost httppost = new HttpPost(url);
-      httppost.setConfig(requestConfig);
-      MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-      builder.addTextBody(RECIPIENT, message.getRecipientFieldAsJson().toString());
-      builder.addTextBody(MESSAGE, message.getMessageFieldAsJson().toString());
-      Uploadable uploadable = message.getUploadable().get();
+    String url = Constants.URL + getBotToken();
+    HttpPost httppost = new HttpPost(url);
+    httppost.setConfig(requestConfig);
+    MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+    builder.addTextBody(RECIPIENT, message.getRecipientFieldAsJson().toString());
+    builder.addTextBody(MESSAGE, message.getMessageFieldAsJson().toString());
+
+    Optional<Boolean> hasTypeOpt = message.getUploadable().map(uploadable -> {
       switch (uploadable.getType()) {
         case IMAGE:
           builder.addBinaryBody(FILEDATA, uploadable.asFile(), ContentType.create("image/png"),
@@ -131,34 +131,40 @@ public abstract class Sender {
         default:
           return false;
       }
+      return true;
+    });
 
-      HttpEntity multipart = builder.build();
-      httppost.setEntity(multipart);
-      try (CloseableHttpResponse response = httpclient.execute(httppost)) {
-        HttpEntity ht = response.getEntity();
-        BufferedHttpEntity buf = new BufferedHttpEntity(ht);
-        responseContent = EntityUtils.toString(buf, StandardCharsets.UTF_8);
-        Log.debug(LOG_TAG, responseContent);
+    Optional<String> responseContentOpt = hasTypeOpt.map(hasType -> {
+      if (hasType) {
+        HttpEntity multipart = builder.build();
+        httppost.setEntity(multipart);
+        try (CloseableHttpResponse response = httpclient.execute(httppost)) {
+          HttpEntity ht = response.getEntity();
+          BufferedHttpEntity buf = new BufferedHttpEntity(ht);
+          return EntityUtils.toString(buf, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+          Log.error(LOG_TAG, e);
+        }
       }
-    } catch (IOException e) {
-      Log.error(LOG_TAG + ".sendUploadableMessage()",
-          "Something went wrong while trying to send a post request with multipart upload.", e);
-      return false;
-    }
+      return null;
+    });
 
-    try {
-      JSONObject jsonObject = new JSONObject(responseContent);
-      if (jsonObject.has(MESSAGE_ID)
-          && jsonObject.getString(RECIPIENT_ID).equals(message.getRecipientId())) {
-        Log.debug(LOG_TAG, "JSON: " + jsonObject.toString(2));
-        Log.debug(LOG_TAG, "Message successfully sent ");
+    Optional<Boolean> resultOpt = responseContentOpt.map(responseContent -> {
+      try {
+        JSONObject jsonObject = new JSONObject(responseContent);
+        if (jsonObject.has(MESSAGE_ID) && jsonObject.has(RECIPIENT_ID)
+            && jsonObject.getString(RECIPIENT_ID).equals(message.getRecipientId())) {
+          Log.debug(LOG_TAG, "JSON: " + jsonObject.toString(2));
+          Log.debug(LOG_TAG, "Message successfully sent ");
+          return true;
+        }
+      } catch (JSONException e) {
+        Log.error(LOG_TAG + ".sendUploadableMessage()",
+            "Something went wrong while trying to convert response to json", e);
       }
-    } catch (JSONException e) {
-      Log.error(LOG_TAG + ".sendUploadableMessage()",
-          "Something went wrong while trying to convert response to json", e);
       return false;
-    }
+    });
 
-    return true;
+    return resultOpt.orElse(false);
   }
 }
