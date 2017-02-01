@@ -1,6 +1,7 @@
 package com.github.anlcnydn.models;
 
 import com.github.anlcnydn.Constants;
+import com.github.anlcnydn.FacebookApiException;
 import com.github.anlcnydn.interfaces.BotApiObject;
 import com.github.anlcnydn.interfaces.Uploadable;
 import com.github.anlcnydn.logger.Log;
@@ -12,6 +13,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Optional;
 
 public class Message implements BotApiObject {
 
@@ -30,55 +32,62 @@ public class Message implements BotApiObject {
   private static final String ATTACHMENT = "attachment";
   private static final String TYPE = "type";
 
-  private String senderId;
+
   private String recipientId;
-  private Date timestamp;
-  private String messageId;
-  private int seqNumber;
-  private String text;
-  private ArrayList<Attachment> attachments;
-  private Uploadable uploadable;
+  
+  private Optional<Date> timestamp = Optional.empty();
+  private Optional<String> messageId = Optional.empty();
+  private Optional<Integer> seqNumber = Optional.empty();
+  private Optional<String> senderId = Optional.empty();
+  private Optional<String> text = Optional.empty();
+  private Optional<ArrayList<Attachment>> attachments = Optional.empty();
+  private Optional<Uploadable> uploadable = Optional.empty();
 
   private Message(String recipientId, String text) {
     this.recipientId = recipientId;
-    this.text = text;
+    this.text = Optional.of(text);
   }
 
   private Message(String recipientId, Attachment attachment) {
     this.recipientId = recipientId;
-    if (attachments == null) {
-      attachments = new ArrayList<>();
-    }
-    attachments.add(attachment);
+    ArrayList<Attachment> atts = new ArrayList<>();
+    atts.add(attachment);
+    this.attachments = Optional.of(atts);
   }
 
   private Message(String recipientId, Uploadable uploadable) {
     this.recipientId = recipientId;
-    this.uploadable = uploadable;
+    this.uploadable = Optional.of(uploadable);
   }
 
-
-  public Message(JSONObject node) {
+  private Message(JSONObject node) {
     try {
-      this.senderId = node.getJSONObject(SENDER).getString(ID);
+
+
+      this.senderId = Optional.of(node.getJSONObject(SENDER).getString(ID));
       this.recipientId = node.getJSONObject(RECIPIENT).getString(ID);
-      this.timestamp = new Date(node.getLong(TIMESTAMP));
-      this.messageId = node.getJSONObject(MESSAGE).getString(MID);
-      this.seqNumber = node.getJSONObject(MESSAGE).getInt(SEQ);
-      if (node.getJSONObject(MESSAGE).has(TEXT)) {
-        this.text = node.getJSONObject(MESSAGE).getString(TEXT);
-      }
-      if (node.getJSONObject(MESSAGE).has(ATTACHMENT)) {
-        JSONArray attachmentsArray = node.getJSONObject(MESSAGE).getJSONArray(ATTACHMENT);
-        for (int i = 0; i < attachmentsArray.length(); i++) {
-          if (attachments == null) {
-            attachments = new ArrayList<>();
+      this.timestamp = Optional.of(new Date(node.getLong(TIMESTAMP)));
+
+      if(node.has(MESSAGE)) {
+        JSONObject message = node.getJSONObject(MESSAGE);
+        this.messageId = Optional.of(message.getString(MID));
+        this.seqNumber = Optional.of(message.getInt(SEQ));
+
+        if(message.has(TEXT)) {
+          this.text = Optional.of(message.getString(TEXT));
+        }
+        if(message.has(ATTACHMENT)) {
+          ArrayList<Attachment> atts = new ArrayList<>();
+          JSONArray attachmentsArray = message.getJSONArray(ATTACHMENT);
+          for (int i = 0; i < attachmentsArray.length(); i++) {
+            atts.add(new Attachment(attachmentsArray.getJSONObject(i)));
           }
-          attachments.add(new Attachment(attachmentsArray.getJSONObject(i)));
+          this.attachments = Optional.of(atts);
         }
       }
     } catch (JSONException e) {
       Log.error(LOG_TAG + ".constructor", Constants.JSON_EXCEPTION_ERROR_MESSAGE, e);
+      //TODO: Throw facebookapiexc. with a meaningful message
     }
   }
 
@@ -90,27 +99,31 @@ public class Message implements BotApiObject {
     return new Message(recipientId, attachment);
   }
 
+  public static Message create(JSONObject node) {
+    return new Message(node);
+  }
+
   public static Message create(String recipientId, Uploadable uploadable) {
     return new Message(recipientId, uploadable);
   }
 
   public boolean hasText() {
-    return text != null;
+    return text.isPresent();
   }
 
   public boolean hasAttachment() {
-    return attachments != null;
+    return attachments.isPresent();
   }
 
   public boolean hasMultipleAttachments() {
-    return hasAttachment() && attachments.size() > 1;
+    return hasAttachment() && attachments.map(a -> a.size() > 1).get();
   }
 
   public boolean hasUploadable() {
-    return uploadable != null;
+    return uploadable.isPresent();
   }
 
-  public String getSenderId() {
+  public Optional<String> getSenderId() {
     return senderId;
   }
 
@@ -118,27 +131,27 @@ public class Message implements BotApiObject {
     return recipientId;
   }
 
-  public Date getTimestamp() {
+  public Optional<Date> getTimestamp() {
     return timestamp;
   }
 
-  public String getMessageId() {
+  public Optional<String> getMessageId() {
     return messageId;
   }
 
-  public int getSeqNumber() {
+  public Optional<Integer> getSeqNumber() {
     return seqNumber;
   }
 
-  public String getText() {
+  public Optional<String> getText() {
     return text;
   }
 
-  public ArrayList<Attachment> getAttachments() {
+  public Optional<ArrayList<Attachment>> getAttachments() {
     return attachments;
   }
 
-  public Uploadable getUploadable() {
+  public Optional<Uploadable> getUploadable() {
     return uploadable;
   }
 
@@ -168,20 +181,24 @@ public class Message implements BotApiObject {
 
   public JSONObject getMessageFieldAsJson() {
     JSONObject messageContent = new JSONObject();
-    JSONArray attachmentsArray = new JSONArray();
+
     try {
       if (hasText()) {
         messageContent.put(TEXT, text);
       }
-      if (hasAttachment()) {
-        for (Attachment a : attachments) {
-          attachmentsArray.put(a.toJson());
-        }
-        messageContent.put(ATTACHMENT, attachmentsArray.getJSONObject(0));
+
+      Optional<JSONArray> attachmentsArray = attachments.map(atts -> {
+        JSONArray jsArray = new JSONArray();
+        atts.forEach(a -> jsArray.put(a.toJson()));
+        return jsArray;
+      });
+
+      if(attachmentsArray.isPresent()) {
+        messageContent.put(ATTACHMENT, attachmentsArray.get());
       }
       if (hasUploadable()) {
         JSONObject uploadableObj = new JSONObject();
-        uploadableObj.put(TYPE, uploadable.getType());
+        uploadableObj.put(TYPE, uploadable.get().getType());
         uploadableObj.put(PAYLOAD, new JSONObject());
         messageContent.put(ATTACHMENT, uploadableObj);
       }

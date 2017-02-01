@@ -2,6 +2,7 @@ package com.github.anlcnydn.bots;
 
 import com.github.anlcnydn.Constants;
 import com.github.anlcnydn.FacebookApiException;
+import com.github.anlcnydn.interfaces.Uploadable;
 import com.github.anlcnydn.logger.Log;
 import com.github.anlcnydn.models.Message;
 import org.apache.http.HttpEntity;
@@ -110,21 +111,22 @@ public abstract class Sender {
       MultipartEntityBuilder builder = MultipartEntityBuilder.create();
       builder.addTextBody(RECIPIENT, message.getRecipientFieldAsJson().toString());
       builder.addTextBody(MESSAGE, message.getMessageFieldAsJson().toString());
-      switch (message.getUploadable().getType()) {
+      Uploadable uploadable = message.getUploadable().get();
+      switch (uploadable.getType()) {
         case IMAGE:
-          builder.addBinaryBody(FILEDATA, message.getUploadable().asFile(),
-              ContentType.create("image/png"), message.getUploadable().asFile().getName());
+          builder.addBinaryBody(FILEDATA, uploadable.asFile(),
+              ContentType.create("image/png"), uploadable.asFile().getName());
           break;
         case AUDIO:
-          builder.addBinaryBody(FILEDATA, message.getUploadable().asFile(),
-              ContentType.create("audio/mp3"), message.getUploadable().asFile().getName());
+          builder.addBinaryBody(FILEDATA, uploadable.asFile(),
+              ContentType.create("audio/mp3"), uploadable.asFile().getName());
           break;
         case VIDEO:
-          builder.addBinaryBody(FILEDATA, message.getUploadable().asFile(),
-              ContentType.create("video/mp4"), message.getUploadable().asFile().getName());
+          builder.addBinaryBody(FILEDATA, uploadable.asFile(),
+              ContentType.create("video/mp4"), uploadable.asFile().getName());
           break;
         case FILE:
-          builder.addBinaryBody(FILEDATA, message.getUploadable().asFile());
+          builder.addBinaryBody(FILEDATA, uploadable.asFile());
           break;
         default:
           return false;
