@@ -80,7 +80,7 @@ public class Message implements BotApiObject {
           ArrayList<Attachment> atts = new ArrayList<>();
           JSONArray attachmentsArray = message.getJSONArray(ATTACHMENT);
           for (int i = 0; i < attachmentsArray.length(); i++) {
-            atts.add(new Attachment(attachmentsArray.getJSONObject(i)));
+            atts.add(Attachment.create(attachmentsArray.getJSONObject(i)));
           }
           this.attachments = Optional.of(atts);
         }
