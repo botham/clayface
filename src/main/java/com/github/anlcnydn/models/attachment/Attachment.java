@@ -22,7 +22,7 @@ public class Attachment implements BotApiObject {
 
   public enum AttachmentType {
     AUDIO("audio"), VIDEO("video"), FILE("file"), IMAGE("image"), FALLBACK("fallback"), LOCATION(
-        "location");
+        "location"), TEMPLATE("template");
 
     private String text;
 
