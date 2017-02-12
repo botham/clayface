@@ -5,41 +5,40 @@ import com.github.anlcnydn.logger.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class ReceiptAdjustment {
   private static final String LOG_TAG = ReceiptAdjustment.class.getName();
 
   private static final String NAME = "name";
   private static final String AMOUNT = "amount";
 
-  private String name;
-  private double amount;
+  private Optional<String> name = Optional.empty();
+  private Optional<Double> amount = Optional.empty();
 
-  private ReceiptAdjustment() {
-    this.amount = 0;
+  private ReceiptAdjustment() {}
+
+  private ReceiptAdjustment(String name, Double amount) {
+    this.name = Optional.of(name);
+    this.amount = Optional.of(amount);
   }
 
   public ReceiptAdjustment create() {
     return new ReceiptAdjustment();
   }
 
-  public ReceiptAdjustment setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  public ReceiptAdjustment setAmount(double amount) {
-    this.amount = amount;
-    return this;
+  public ReceiptAdjustment create(String name, Double amount) {
+    return new ReceiptAdjustment(name, amount);
   }
 
   public JSONObject toJson() {
     JSONObject adjustment = new JSONObject();
     try {
-      if (name != null) {
-        adjustment.put(NAME, name);
+      if (name.isPresent()) {
+        adjustment.put(NAME, name.get());
       }
-      if (amount != 0) {
-        adjustment.put(AMOUNT, amount);
+      if (amount.isPresent()) {
+        adjustment.put(AMOUNT, amount.get());
       }
     } catch (JSONException e) {
       Log.error(LOG_TAG + ".toJson()", Constants.JSON_EXCEPTION_ERROR_MESSAGE, e);

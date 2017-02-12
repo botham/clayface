@@ -5,6 +5,8 @@ import com.github.anlcnydn.logger.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class ReceiptElement {
   private static final String LOG_TAG = ReceiptElement.class.getName();
 
@@ -15,67 +17,81 @@ public class ReceiptElement {
   private static final String CURRENCY = "currency";
   private static final String IMAGE_URL = "image_url";
 
+  /**
+   * Title of item.
+   * Required.
+   */
   private String title;
-  private String subtitle;
-  private int quantity;
+
+  /**
+   * Subtitle of item.
+   */
+  private Optional<String> subtitle = Optional.empty();
+
+  /**
+   * Quantity of item.
+   */
+  private Optional<Integer> quantity = Optional.empty();
+
+  /**
+   * Required, but 0 is allowed
+   */
   private double price;
-  private String currency;
-  private String imageUrl;
+
+  /**
+   * Currency of price.
+   */
+  private Optional<String> currency = Optional.empty();
+
+  /**
+   * Image URL of item.
+   */
+  private Optional<String> imageUrl = Optional.empty();
 
   private ReceiptElement(String title, double price) {
     this.title = title;
     this.price = price;
-    this.quantity = 0;
+  }
+
+  private ReceiptElement(String title, String subtitle, int quantity, double price, String currency,
+      String imageUrl) {
+    this.title = title;
+    this.subtitle = Optional.of(subtitle);
+    this.quantity = Optional.of(quantity);
+    this.price = price;
+    this.currency = Optional.of(currency);
+    this.imageUrl = Optional.of(imageUrl);
   }
 
   public ReceiptElement create(String title, double price) {
     return new ReceiptElement(title, price);
   }
 
-  public ReceiptElement setSubtitle(String subtitle) {
-    this.subtitle = subtitle;
-    return this;
-  }
-
-  public ReceiptElement setQuantity(int quantity) {
-    this.quantity = quantity;
-    return this;
-  }
-
-  public ReceiptElement setCurrency(String currency) {
-    this.currency = currency;
-    return this;
-  }
-
-  public ReceiptElement setImageUrl(String imageUrl) {
-    this.imageUrl = imageUrl;
-    return this;
+  public ReceiptElement create(String title, String subtitle, int quantity, double price,
+      String currency, String imageUrl) {
+    return new ReceiptElement(title, subtitle, quantity, price, currency, imageUrl);
   }
 
   public JSONObject toJson() {
     JSONObject element = new JSONObject();
     try {
       element.put(TITLE, title);
-      if (subtitle != null) {
-        element.put(SUBTITLE, subtitle);
+      if (subtitle.isPresent()) {
+        element.put(SUBTITLE, subtitle.get());
       }
-      if (quantity > 0) {
-        element.put(QUANTITY, quantity);
+      if (quantity.isPresent()) {
+        element.put(QUANTITY, quantity.get());
       }
       element.put(PRICE, price);
-      if (currency != null) {
-        element.put(CURRENCY, currency);
+      if (currency.isPresent()) {
+        element.put(CURRENCY, currency.get());
       }
-      if (imageUrl != null) {
-        element.put(IMAGE_URL, imageUrl);
+      if (imageUrl.isPresent()) {
+        element.put(IMAGE_URL, imageUrl.get());
       }
-
     } catch (JSONException e) {
       Log.error(LOG_TAG + ".toJson()", Constants.JSON_EXCEPTION_ERROR_MESSAGE, e);
     }
     return element;
   }
-
-
-
 }
