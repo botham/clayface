@@ -114,7 +114,8 @@ public class Element {
     this.defaultAction = Optional.of(defaultAction);
   }
 
-  private Element(String title, String imageUrl, String subtitle, ArrayList<Button> buttons, Action defaultAction) {
+  private Element(String title, String imageUrl, String subtitle, ArrayList<Button> buttons,
+      Action defaultAction) {
     this.title = title;
     this.imageUrl = Optional.of(imageUrl);
     this.subtitle = Optional.of(subtitle.length() > 80 ? subtitle.substring(0, 80) : subtitle);
@@ -122,7 +123,7 @@ public class Element {
     this.defaultAction = Optional.of(defaultAction);
   }
 
- //Static creators.
+  //Static creators.
 
   /**
    *
@@ -161,19 +162,23 @@ public class Element {
     return new Element(title, buttons, defaultAction);
   }
 
-  public static Element create(String title, String imageUrl, String subtitle, ArrayList<Button> buttons) {
+  public static Element create(String title, String imageUrl, String subtitle,
+      ArrayList<Button> buttons) {
     return new Element(title, imageUrl, subtitle, buttons);
   }
 
-  public static Element create(String title, String imageUrl, String subtitle, Action defaultAction) {
+  public static Element create(String title, String imageUrl, String subtitle,
+      Action defaultAction) {
     return new Element(title, imageUrl, subtitle, defaultAction);
   }
 
-  public static Element create(String title, String imageUrl, ArrayList<Button> buttons, Action defaultAction) {
+  public static Element create(String title, String imageUrl, ArrayList<Button> buttons,
+      Action defaultAction) {
     return new Element(title, imageUrl, buttons, defaultAction);
   }
 
-  public static Element create(String title, String imageUrl, String subtitle, ArrayList<Button> buttons, Action defaultAction) {
+  public static Element create(String title, String imageUrl, String subtitle,
+      ArrayList<Button> buttons, Action defaultAction) {
     return new Element(title, imageUrl, subtitle, buttons, defaultAction);
   }
 

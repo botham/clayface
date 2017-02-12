@@ -18,8 +18,8 @@ public class Button {
   private static final String PAYLOAD = "payload";
 
   public enum ButtonType {
-    WEB_URL("web_url"), POSTBACK("postback"), CALL("phone_number"), SHARE("element_share"), BUY("payment"),
-    LOGIN("account_link"), LOGOUT("account_unlink");
+    WEB_URL("web_url"), POSTBACK("postback"), CALL("phone_number"), SHARE("element_share"), BUY(
+        "payment"), LOGIN("account_link"), LOGOUT("account_unlink");
 
     private String text;
 
@@ -107,7 +107,7 @@ public class Button {
       button.put(TITLE, title);
       if (type.getText().equals(ButtonType.WEB_URL.getText()) && url.isPresent()) {
         button.put(URL, url.get());
-      } else if (payload.isPresent()){
+      } else if (payload.isPresent()) {
         button.put(PAYLOAD, payload.get().toJson());
       } else {
         //TODO: Decide what to do
