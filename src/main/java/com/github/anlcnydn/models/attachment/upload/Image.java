@@ -9,12 +9,20 @@ public class Image implements Uploadable, BotApiObject {
 
   private File file;
 
-  public Image(String path) {
+  private Image(String path) {
     this.file = new File(path);
   }
 
-  public Image(File file) {
+  private Image(File file) {
     this.file = file;
+  }
+
+  public static Image create(String path) {
+    return new Image(path);
+  }
+
+  public static Image create(File file) {
+    return new Image(file);
   }
 
   @Override

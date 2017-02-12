@@ -16,7 +16,7 @@ public class Button {
   private static final String PAYLOAD = "payload";
 
   /**
-   * Can be web_url, postback, phone_number
+   * Can be web_url, postback, phone_number(call)
    */
   private String type;
 
