@@ -17,18 +17,33 @@ public class Attachment implements BotApiObject {
   private static final String LAT = "coordinates.lat";
   private static final String LONG = "coordinates.long";
 
-  private String type;
+  private AttachmentType type;
   private AttachmentPayload payload;
 
-  private Attachment(String type, AttachmentPayload payload) {
+  public enum AttachmentType {
+    AUDIO("audio"), VIDEO("video"), FILE("file"), IMAGE("image"), FALLBACK("fallback"), LOCATION(
+        "location"), TEMPLATE("template");
+
+    private String text;
+
+    AttachmentType(final String text) {
+      this.text = text;
+    }
+
+    public String getText() {
+      return text;
+    }
+  }
+
+  private Attachment(AttachmentType type, AttachmentPayload payload) {
     this.type = type;
     this.payload = payload;
   }
 
-  public Attachment(JSONObject node) {
+  private Attachment(JSONObject node) {
     try {
-      this.type = node.getString(TYPE);
-      if (type.equals(LOCATION)) {
+      this.type = AttachmentType.valueOf(node.getString(TYPE));
+      if (type.getText().equals(LOCATION)) {
         this.payload = Location.create(node.getJSONObject(PAYLOAD).getDouble(LAT),
             node.getJSONObject(PAYLOAD).getDouble(LONG));
       } else {
@@ -39,15 +54,19 @@ public class Attachment implements BotApiObject {
     }
   }
 
-  public static Attachment create(String type, AttachmentPayload payload) {
+  public static Attachment create(AttachmentType type, AttachmentPayload payload) {
     return new Attachment(type, payload);
+  }
+
+  public static Attachment create(JSONObject node) {
+    return new Attachment(node);
   }
 
   public JSONObject toJson() {
     try {
       JSONObject attachment = new JSONObject();
       JSONObject payloadObj = payload.toJson();
-      attachment.put(TYPE, type);
+      attachment.put(TYPE, type.getText());
       attachment.put(PAYLOAD, payloadObj);
       return attachment;
     } catch (JSONException e) {
@@ -56,7 +75,7 @@ public class Attachment implements BotApiObject {
     }
   }
 
-  public String getType() {
+  public AttachmentType getType() {
     return type;
   }
 

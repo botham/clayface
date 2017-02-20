@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GenericTemplate implements AttachmentPayload {
   private static final String LOG_TAG = GenericTemplate.class.getName();
@@ -15,24 +16,21 @@ public class GenericTemplate implements AttachmentPayload {
   private static final String TEMPLATE_TYPE = "template_type";
   private static final String ELEMENTS = "elements";
 
-  private ArrayList<Element> elements;
+  /**
+   * elements is limited to 10
+   */
+  private List<Element> elements;
 
   private GenericTemplate(ArrayList<Element> elements) {
-    this.elements = elements;
+    this.elements = elements.size() > 10 ? elements.subList(0, 10) : elements;
   }
 
   public static GenericTemplate create(ArrayList<Element> elements) {
     return new GenericTemplate(elements);
   }
 
-  public GenericTemplate addElement(Element element) {
-    if (elements == null) {
-      elements = new ArrayList<>();
-    }
-    if (elements.size() < 10) {
-      elements.add(element);
-    }
-    return this;
+  public String getTemplateType() {
+    return "generic";
   }
 
   @Override
@@ -51,9 +49,5 @@ public class GenericTemplate implements AttachmentPayload {
       Log.error(LOG_TAG + ".toJson()", Constants.JSON_EXCEPTION_ERROR_MESSAGE, e);
     }
     return generic;
-  }
-
-  public String getTemplateType() {
-    return "generic";
   }
 }

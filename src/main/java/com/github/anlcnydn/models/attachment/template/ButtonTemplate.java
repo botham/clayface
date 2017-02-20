@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ButtonTemplate implements AttachmentPayload {
   private static final String LOG_TAG = ButtonTemplate.class.getName();
@@ -16,48 +17,58 @@ public class ButtonTemplate implements AttachmentPayload {
   private static final String TEXT = "text";
   private static final String BUTTONS = "buttons";
 
+  /**
+   * UTF-8 encoded text of up to 640 characters that appears the in main body
+   */
   private String text;
-  private ArrayList<Button> buttons;
 
-  private ButtonTemplate() {}
+  /**
+   * List of, one to three, buttons that appear as call-to-actions
+   */
+  private List<Button> buttons;
 
-  public static ButtonTemplate create() {
-    return new ButtonTemplate();
+  /**
+   * Private constructor of ButtonTemplate
+   * @param text
+   * @param buttons
+   */
+  private ButtonTemplate(String text, ArrayList<Button> buttons) {
+    this.text = text.length() > 640 ? text.substring(0, 640) : text;
+    this.buttons = buttons.size() > 3 ? buttons.subList(0, 3) : buttons;
   }
 
-  public ButtonTemplate addButton(Button button) {
-    if (buttons == null) {
-      buttons = new ArrayList<>();
-    }
-    if (buttons.size() < 3) {
-      buttons.add(button);
-    }
-    return this;
+  /**
+   * Public create method of ButtonTemplate
+   * @param text
+   * @param buttons
+   * @return
+   */
+  public static ButtonTemplate create(String text, ArrayList<Button> buttons) {
+    return new ButtonTemplate(text, buttons);
   }
 
-  public ButtonTemplate setText(String text) {
-    this.text = text;
-    return this;
-  }
-
+  /**
+   * Value must be "button"
+   * @return "button"
+   */
   public String getTemplateType() {
     return "button";
   }
 
   @Override
   public JSONObject toJson() {
-    JSONObject button = new JSONObject();
+    JSONObject payload = new JSONObject();
     JSONArray buttonsArr = new JSONArray();
     try {
-      button.put(TEMPLATE_TYPE, getTemplateType());
-      button.put(TEXT, text);
+      payload.put(TEMPLATE_TYPE, getTemplateType());
+      payload.put(TEXT, text);
       for (Button b : buttons) {
         buttonsArr.put(b.toJson());
       }
-      button.put(BUTTONS, buttonsArr);
+      payload.put(BUTTONS, buttonsArr);
     } catch (JSONException e) {
       Log.error(LOG_TAG + ".toJson()", Constants.JSON_EXCEPTION_ERROR_MESSAGE, e);
     }
-    return button;
+    return payload;
   }
 }

@@ -7,12 +7,20 @@ public class File implements Uploadable, BotApiObject {
 
   private java.io.File file;
 
-  public File(String path) {
+  private File(String path) {
     this.file = new java.io.File(path);
   }
 
-  public File(java.io.File file) {
+  private File(java.io.File file) {
     this.file = file;
+  }
+
+  public static File create(String path) {
+    return new File(path);
+  }
+
+  public static File create(java.io.File file) {
+    return new File(file);
   }
 
   @Override

@@ -39,7 +39,7 @@ public class Update implements BotApiObject {
       for (int i = 0; i < messaging.length(); i++) {
         JSONObject message = messaging.getJSONObject(i);
         if (message.has(MESSAGE)) {
-          messages.add(new Message(message));
+          messages.add(Message.create(message));
         }
       }
     } catch (JSONException e) {

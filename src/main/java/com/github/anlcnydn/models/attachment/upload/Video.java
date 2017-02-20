@@ -9,12 +9,20 @@ public class Video implements Uploadable, BotApiObject {
 
   private File file;
 
-  public Video(String path) {
+  private Video(String path) {
     this.file = new File(path);
   }
 
-  public Video(File file) {
+  private Video(File file) {
     this.file = file;
+  }
+
+  public static Video create(String path) {
+    return new Video(path);
+  }
+
+  public static Video create(File file) {
+    return new Video(file);
   }
 
   @Override

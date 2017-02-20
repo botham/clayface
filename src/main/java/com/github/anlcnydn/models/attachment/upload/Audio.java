@@ -9,12 +9,20 @@ public class Audio implements Uploadable, BotApiObject {
 
   private File file;
 
-  public Audio(String path) {
+  private Audio(String path) {
     this.file = new File(path);
   }
 
-  public Audio(File file) {
+  private Audio(File file) {
     this.file = file;
+  }
+
+  public static Audio create(String path) {
+    return new Audio(path);
+  }
+
+  public static Audio create(File file) {
+    return new Audio(file);
   }
 
   @Override

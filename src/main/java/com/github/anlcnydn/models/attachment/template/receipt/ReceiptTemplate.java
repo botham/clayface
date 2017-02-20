@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class ReceiptTemplate implements AttachmentPayload {
   private static final String LOG_TAG = ReceiptTemplate.class.getName();
@@ -24,16 +25,60 @@ public class ReceiptTemplate implements AttachmentPayload {
   private static final String SUMMARY = "summary";
   private static final String ADJUSTMENTS = "adjustments";
 
+  /**
+   * Recipient's name.
+   * Required.
+   */
   private String recipientName;
+
+  /**
+   * Order number.
+   * Required, must be unique.
+   */
   private String orderNumber;
+
+  /**
+   * Currency for order.
+   * Required.
+   */
   private String currency;
+
+  /**
+   * Payment method details. This can be a custom string. ex: "Visa 1234".
+   * Required.
+   */
   private String paymentMethod;
-  private String orderUrl;
-  private String timestamp;
-  private ArrayList<ReceiptElement> elements;
-  private Address address;
+
+  /**
+   * Payment summary.
+   * Required.
+   */
   private ReceiptSummary summary;
-  private ArrayList<ReceiptAdjustment> adjustments;
+
+  /**
+   * URL of order.
+   */
+  private Optional<String> orderUrl = Optional.empty();
+
+  /**
+   * Timestamp of the order, in seconds.
+   */
+  private Optional<String> timestamp = Optional.empty();
+
+  /**
+   * Items in order.
+   */
+  private Optional<ArrayList<ReceiptElement>> elements = Optional.empty();
+
+  /**
+   * Shipping address.
+   */
+  private Optional<ReceiptAddress> receiptAddress = Optional.empty();
+
+  /**
+   * Payment adjustments.
+   */
+  private Optional<ArrayList<ReceiptAdjustment>> adjustments = Optional.empty();
 
   private ReceiptTemplate(String recipientName, String orderNumber, String currency,
       String paymentMethod, ReceiptSummary summary) {
@@ -44,42 +89,33 @@ public class ReceiptTemplate implements AttachmentPayload {
     this.summary = summary;
   }
 
+  private ReceiptTemplate(String recipientName, String orderNumber, String currency,
+      String paymentMethod, ReceiptSummary summary, String orderUrl, String timestamp,
+      ArrayList<ReceiptElement> elements, ReceiptAddress receiptAddress,
+      ArrayList<ReceiptAdjustment> adjustments) {
+    this.recipientName = recipientName;
+    this.orderNumber = orderNumber;
+    this.currency = currency;
+    this.paymentMethod = paymentMethod;
+    this.summary = summary;
+    this.orderUrl = Optional.of(orderUrl);
+    this.timestamp = Optional.of(timestamp);
+    this.elements = Optional.of(elements);
+    this.receiptAddress = Optional.of(receiptAddress);
+    this.adjustments = Optional.of(adjustments);
+  }
+
   public static ReceiptTemplate create(String recipientName, String orderNumber, String currency,
       String paymentMethod, ReceiptSummary summary) {
     return new ReceiptTemplate(recipientName, orderNumber, currency, paymentMethod, summary);
   }
 
-  public ReceiptTemplate setOrderUrl(String orderUrl) {
-    this.orderUrl = orderUrl;
-    return this;
-  }
-
-  public ReceiptTemplate setTimestamp(String timestamp) {
-    this.timestamp = timestamp;
-    return this;
-  }
-
-  public ReceiptTemplate addReceiptElement(ReceiptElement element) {
-    if (elements == null) {
-      elements = new ArrayList<>();
-    }
-    if (elements.size() < 100) {
-      elements.add(element);
-    }
-    return this;
-  }
-
-  public ReceiptTemplate addReceiptAdjustment(ReceiptAdjustment adjustment) {
-    if (adjustments == null) {
-      adjustments = new ArrayList<>();
-    }
-    adjustments.add(adjustment);
-    return this;
-  }
-
-  public ReceiptTemplate setAddress(Address address) {
-    this.address = address;
-    return this;
+  public static ReceiptTemplate create(String recipientName, String orderNumber, String currency,
+      String paymentMethod, ReceiptSummary summary, String orderUrl, String timestamp,
+      ArrayList<ReceiptElement> elements, ReceiptAddress receiptAddress,
+      ArrayList<ReceiptAdjustment> adjustments) {
+    return new ReceiptTemplate(recipientName, orderNumber, currency, paymentMethod, summary,
+        orderUrl, timestamp, elements, receiptAddress, adjustments);
   }
 
   public String getTemplateType() {
@@ -95,26 +131,26 @@ public class ReceiptTemplate implements AttachmentPayload {
       receipt.put(ORDER_NUMBER, orderNumber);
       receipt.put(CURRENCY, currency);
       receipt.put(PAYMENT_METHOD, paymentMethod);
-      if (orderUrl != null) {
-        receipt.put(ORDER_URL, orderUrl);
+      if (orderUrl.isPresent()) {
+        receipt.put(ORDER_URL, orderUrl.get());
       }
-      if (timestamp != null) {
-        receipt.put(TIMESTAMP, timestamp);
+      if (timestamp.isPresent()) {
+        receipt.put(TIMESTAMP, timestamp.get());
       }
-      if (elements != null) {
+      if (elements.isPresent()) {
         JSONArray elementsArr = new JSONArray();
-        for (ReceiptElement e : elements) {
+        for (ReceiptElement e : elements.get()) {
           elementsArr.put(e.toJson());
         }
         receipt.put(ELEMENTS, elementsArr);
       }
-      if (address != null) {
-        receipt.put(ADDRESS, address);
+      if (receiptAddress.isPresent()) {
+        receipt.put(ADDRESS, receiptAddress.get().toJson());
       }
       receipt.put(SUMMARY, summary.toJson());
-      if (adjustments != null) {
+      if (adjustments.isPresent()) {
         JSONArray adjustmentsArr = new JSONArray();
-        for (ReceiptAdjustment a : adjustments) {
+        for (ReceiptAdjustment a : adjustments.get()) {
           adjustmentsArr.put(a.toJson());
         }
         receipt.put(ADJUSTMENTS, adjustmentsArr);

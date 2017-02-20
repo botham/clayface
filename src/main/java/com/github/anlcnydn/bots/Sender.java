@@ -2,6 +2,7 @@ package com.github.anlcnydn.bots;
 
 import com.github.anlcnydn.Constants;
 import com.github.anlcnydn.FacebookApiException;
+import com.github.anlcnydn.interfaces.Uploadable;
 import com.github.anlcnydn.logger.Log;
 import com.github.anlcnydn.models.Message;
 import org.apache.http.HttpEntity;
@@ -20,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public abstract class Sender {
@@ -102,61 +104,64 @@ public abstract class Sender {
    * @return
    */
   boolean sendUploadableMessage(Message message) {
-    String responseContent;
-    try {
-      String url = Constants.URL + getBotToken();
-      HttpPost httppost = new HttpPost(url);
-      httppost.setConfig(requestConfig);
-      MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-      builder.addTextBody(RECIPIENT, message.getRecipientFieldAsJson().toString());
-      builder.addTextBody(MESSAGE, message.getMessageFieldAsJson().toString());
-      switch (message.getUploadable().getType()) {
-        case IMAGE:
-          builder.addBinaryBody(FILEDATA, message.getUploadable().asFile(),
-              ContentType.create("image/png"), message.getUploadable().asFile().getName());
-          break;
-        case AUDIO:
-          builder.addBinaryBody(FILEDATA, message.getUploadable().asFile(),
-              ContentType.create("audio/mp3"), message.getUploadable().asFile().getName());
-          break;
-        case VIDEO:
-          builder.addBinaryBody(FILEDATA, message.getUploadable().asFile(),
-              ContentType.create("video/mp4"), message.getUploadable().asFile().getName());
-          break;
-        case FILE:
-          builder.addBinaryBody(FILEDATA, message.getUploadable().asFile());
-          break;
-        default:
-          return false;
-      }
+    String url = Constants.URL + getBotToken();
+    HttpPost httppost = new HttpPost(url);
+    httppost.setConfig(requestConfig);
+    MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+    builder.addTextBody(RECIPIENT, message.getRecipientFieldAsJson().toString());
+    builder.addTextBody(MESSAGE, message.getMessageFieldAsJson().toString());
 
-      HttpEntity multipart = builder.build();
+    Optional<HttpEntity> hasTypeOpt = message.getUploadable().map(uploadable -> {
+      switch (uploadable.getType()) {
+        case IMAGE:
+          return buildHttpEntity(builder, uploadable, Optional.of(ContentType.create("image/png")));
+        case AUDIO:
+          return buildHttpEntity(builder, uploadable, Optional.of(ContentType.create("audio/mp3")));
+        case VIDEO:
+          return buildHttpEntity(builder, uploadable, Optional.of(ContentType.create("video/mp4")));
+        case FILE:
+          return buildHttpEntity(builder, uploadable, Optional.empty());
+        default:
+          return null;
+      }
+    });
+
+    Optional<String> responseContentOpt = hasTypeOpt.map(multipart -> {
       httppost.setEntity(multipart);
       try (CloseableHttpResponse response = httpclient.execute(httppost)) {
         HttpEntity ht = response.getEntity();
         BufferedHttpEntity buf = new BufferedHttpEntity(ht);
-        responseContent = EntityUtils.toString(buf, StandardCharsets.UTF_8);
-        Log.debug(LOG_TAG, responseContent);
+        return EntityUtils.toString(buf, StandardCharsets.UTF_8);
+      } catch (IOException e) {
+        Log.error(LOG_TAG, e);
       }
-    } catch (IOException e) {
-      Log.error(LOG_TAG + ".sendUploadableMessage()",
-          "Something went wrong while trying to send a post request with multipart upload.", e);
-      return false;
-    }
+      return null;
+    });
 
-    try {
-      JSONObject jsonObject = new JSONObject(responseContent);
-      if (jsonObject.has(MESSAGE_ID)
-          && jsonObject.getString(RECIPIENT_ID).equals(message.getRecipientId())) {
-        Log.debug(LOG_TAG, "JSON: " + jsonObject.toString(2));
-        Log.debug(LOG_TAG, "Message successfully sent ");
+    Optional<Boolean> resultOpt = responseContentOpt.map(responseContent -> {
+      try {
+        JSONObject jsonObject = new JSONObject(responseContent);
+        if (jsonObject.has(MESSAGE_ID) && jsonObject.has(RECIPIENT_ID)
+            && jsonObject.getString(RECIPIENT_ID).equals(message.getRecipientId())) {
+          Log.debug(LOG_TAG, "JSON: " + jsonObject.toString(2));
+          Log.debug(LOG_TAG, "Message successfully sent ");
+          return true;
+        }
+      } catch (JSONException e) {
+        Log.error(LOG_TAG + ".sendUploadableMessage()",
+            "Something went wrong while trying to convert response to json", e);
       }
-    } catch (JSONException e) {
-      Log.error(LOG_TAG + ".sendUploadableMessage()",
-          "Something went wrong while trying to convert response to json", e);
       return false;
-    }
+    });
 
-    return true;
+    return resultOpt.orElse(false);
+  }
+
+  private HttpEntity buildHttpEntity(MultipartEntityBuilder builder, Uploadable uploadable, Optional<ContentType> contentType) {
+    Optional<HttpEntity> buildOpt = contentType.map(ct -> {
+      builder.addBinaryBody(FILEDATA, uploadable.asFile(), ct, uploadable.asFile().getName());
+      return builder.build();
+    });
+    return buildOpt.orElse(builder.addBinaryBody(FILEDATA, uploadable.asFile()).build());
   }
 }
