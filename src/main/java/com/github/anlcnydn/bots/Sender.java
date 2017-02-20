@@ -111,40 +111,29 @@ public abstract class Sender {
     builder.addTextBody(RECIPIENT, message.getRecipientFieldAsJson().toString());
     builder.addTextBody(MESSAGE, message.getMessageFieldAsJson().toString());
 
-    Optional<Boolean> hasTypeOpt = message.getUploadable().map(uploadable -> {
+    Optional<HttpEntity> hasTypeOpt = message.getUploadable().map(uploadable -> {
       switch (uploadable.getType()) {
         case IMAGE:
-          builder.addBinaryBody(FILEDATA, uploadable.asFile(), ContentType.create("image/png"),
-              uploadable.asFile().getName());
-          break;
+          return buildHttpEntity(builder, uploadable, Optional.of(ContentType.create("image/png")));
         case AUDIO:
-          builder.addBinaryBody(FILEDATA, uploadable.asFile(), ContentType.create("audio/mp3"),
-              uploadable.asFile().getName());
-          break;
+          return buildHttpEntity(builder, uploadable, Optional.of(ContentType.create("audio/mp3")));
         case VIDEO:
-          builder.addBinaryBody(FILEDATA, uploadable.asFile(), ContentType.create("video/mp4"),
-              uploadable.asFile().getName());
-          break;
+          return buildHttpEntity(builder, uploadable, Optional.of(ContentType.create("video/mp4")));
         case FILE:
-          builder.addBinaryBody(FILEDATA, uploadable.asFile());
-          break;
+          return buildHttpEntity(builder, uploadable, Optional.empty());
         default:
-          return false;
+          return null;
       }
-      return true;
     });
 
-    Optional<String> responseContentOpt = hasTypeOpt.map(hasType -> {
-      if (hasType) {
-        HttpEntity multipart = builder.build();
-        httppost.setEntity(multipart);
-        try (CloseableHttpResponse response = httpclient.execute(httppost)) {
-          HttpEntity ht = response.getEntity();
-          BufferedHttpEntity buf = new BufferedHttpEntity(ht);
-          return EntityUtils.toString(buf, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-          Log.error(LOG_TAG, e);
-        }
+    Optional<String> responseContentOpt = hasTypeOpt.map(multipart -> {
+      httppost.setEntity(multipart);
+      try (CloseableHttpResponse response = httpclient.execute(httppost)) {
+        HttpEntity ht = response.getEntity();
+        BufferedHttpEntity buf = new BufferedHttpEntity(ht);
+        return EntityUtils.toString(buf, StandardCharsets.UTF_8);
+      } catch (IOException e) {
+        Log.error(LOG_TAG, e);
       }
       return null;
     });
@@ -166,5 +155,13 @@ public abstract class Sender {
     });
 
     return resultOpt.orElse(false);
+  }
+
+  private HttpEntity buildHttpEntity(MultipartEntityBuilder builder, Uploadable uploadable, Optional<ContentType> contentType) {
+    Optional<HttpEntity> buildOpt = contentType.map(ct -> {
+      builder.addBinaryBody(FILEDATA, uploadable.asFile(), ct, uploadable.asFile().getName());
+      return builder.build();
+    });
+    return buildOpt.orElse(builder.addBinaryBody(FILEDATA, uploadable.asFile()).build());
   }
 }
