@@ -195,8 +195,7 @@ public class Message implements BotApiObject {
 
       if (attachmentsArray.isPresent()) {
         messageContent.put(ATTACHMENT, attachmentsArray.get());
-      }
-      if (hasUploadable()) {
+      } else if (hasUploadable()) {
         JSONObject uploadableObj = new JSONObject();
         uploadableObj.put(TYPE, uploadable.get().getType());
         uploadableObj.put(PAYLOAD, new JSONObject());
