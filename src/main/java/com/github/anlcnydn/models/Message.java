@@ -1,12 +1,12 @@
 package com.github.anlcnydn.models;
 
 import com.github.anlcnydn.Constants;
-import com.github.anlcnydn.FacebookApiException;
 import com.github.anlcnydn.interfaces.BotApiObject;
 import com.github.anlcnydn.interfaces.Uploadable;
 import com.github.anlcnydn.logger.Log;
 import com.github.anlcnydn.models.attachment.Attachment;
 
+import com.github.anlcnydn.models.quickreply.QuickReply;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +27,7 @@ public class Message implements BotApiObject {
   private static final String MID = "mid";
   private static final String SEQ = "seq";
   private static final String TEXT = "text";
-  private static final String QUICK_REPLY = "quick_reply";
+  private static final String QUICK_REPLIES = "quick_replies";
   private static final String PAYLOAD = "payload";
   private static final String ATTACHMENT = "attachment";
   private static final String TYPE = "type";
@@ -42,6 +42,8 @@ public class Message implements BotApiObject {
   private Optional<String> text = Optional.empty();
   private Optional<ArrayList<Attachment>> attachments = Optional.empty();
   private Optional<Uploadable> uploadable = Optional.empty();
+  // Quick replies limited to 11
+  private Optional<ArrayList<QuickReply>> quickReplies = Optional.empty();
 
   private Message(String recipientId, String text) {
     this.recipientId = recipientId;
@@ -58,6 +60,11 @@ public class Message implements BotApiObject {
   private Message(String recipientId, Uploadable uploadable) {
     this.recipientId = recipientId;
     this.uploadable = Optional.of(uploadable);
+  }
+
+  private Message(String recipientId, ArrayList<QuickReply> quickReplies) {
+    this.recipientId = recipientId;
+    this.quickReplies = Optional.of(quickReplies);
   }
 
   private Message(JSONObject node) {
@@ -84,6 +91,14 @@ public class Message implements BotApiObject {
           }
           this.attachments = Optional.of(atts);
         }
+        if (message.has(QUICK_REPLIES)) {
+          ArrayList<QuickReply> qrs = new ArrayList<>();
+          JSONArray qrArray = message.getJSONArray(QUICK_REPLIES);
+          for (int i = 0; i < qrArray.length(); i++) {
+            qrs.add(QuickReply.create(qrArray.getJSONObject(i)));
+          }
+          this.quickReplies = Optional.of(qrs);
+        }
       }
     } catch (JSONException e) {
       Log.error(LOG_TAG + ".constructor", Constants.JSON_EXCEPTION_ERROR_MESSAGE, e);
@@ -105,6 +120,14 @@ public class Message implements BotApiObject {
 
   public static Message create(String recipientId, Uploadable uploadable) {
     return new Message(recipientId, uploadable);
+  }
+
+  public static Message create(String recipientId, ArrayList<QuickReply> quickReplies) {
+    return new Message(recipientId, quickReplies);
+  }
+
+  public boolean hasQuickReplies() {
+    return quickReplies.isPresent();
   }
 
   public boolean hasText() {
@@ -200,6 +223,12 @@ public class Message implements BotApiObject {
         uploadableObj.put(TYPE, uploadable.get().getType());
         uploadableObj.put(PAYLOAD, new JSONObject());
         messageContent.put(ATTACHMENT, uploadableObj);
+      } else if (hasQuickReplies()) {
+        JSONArray quickRepliesArray = new JSONArray();
+        for (QuickReply q : quickReplies.get()) {
+          quickRepliesArray.put(q.toJson());
+        }
+        messageContent.put(QUICK_REPLIES, quickRepliesArray);
       }
     } catch (JSONException e) {
       Log.error(LOG_TAG + ".getMessageFieldAsJson()", Constants.JSON_EXCEPTION_ERROR_MESSAGE, e);
