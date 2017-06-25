@@ -157,7 +157,8 @@ public abstract class Sender {
     return resultOpt.orElse(false);
   }
 
-  private HttpEntity buildHttpEntity(MultipartEntityBuilder builder, Uploadable uploadable, Optional<ContentType> contentType) {
+  private HttpEntity buildHttpEntity(MultipartEntityBuilder builder, Uploadable uploadable,
+      Optional<ContentType> contentType) {
     Optional<HttpEntity> buildOpt = contentType.map(ct -> {
       builder.addBinaryBody(FILEDATA, uploadable.asFile(), ct, uploadable.asFile().getName());
       return builder.build();
