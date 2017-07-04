@@ -8,6 +8,8 @@ import org.json.JSONObject;
 
 import java.util.Map;
 
+import static com.github.anlcnydn.Constants.ValidationConstants.*;
+
 public class FacebookBotApi {
   private static final String LOG_TAG = FacebookBotApi.class.getSimpleName();
 
@@ -22,13 +24,19 @@ public class FacebookBotApi {
   }
 
   public BotHttpResult verify(Map<String, String> urlFields) {
-    if (urlFields != null && urlFields.containsKey("hub.mode")
-        && urlFields.containsKey("hub.verify_token") && urlFields.containsKey("hub.challenge")) {
-      String verifyToken = urlFields.get("hub.verify_token");
-      String challenge = urlFields.get("hub.challenge");
-      if (verifyToken.equals(bot.getVerificationToken())) {
-        return new BotHttpResult(Constants.OK, challenge);
-      }
+    if (urlFields != null && urlFields.containsKey(ModeField)
+        && urlFields.containsKey(VerifyTokenField) && urlFields.containsKey(ChallengeField)) {
+      String mode = urlFields.get(ModeField);
+      String verifyToken = urlFields.get(VerifyTokenField);
+      String challenge = urlFields.get(ChallengeField);
+      return verify(mode, verifyToken, challenge);
+    }
+    return new BotHttpResult(Constants.BAD_REQUEST);
+  }
+
+  public BotHttpResult verify(String mode, String verifyToken, String challenge) {
+    if (mode.equals("subscribe") && verifyToken.equals(bot.getVerificationToken())) {
+      return new BotHttpResult(Constants.OK, challenge);
     }
     return new BotHttpResult(Constants.UNAUTHORIZED);
   }
