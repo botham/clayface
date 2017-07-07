@@ -2,7 +2,6 @@ package com.github.anlcnydn.bots;
 
 import com.github.anlcnydn.FacebookApiException;
 import com.github.anlcnydn.models.Message;
-import com.typesafe.config.Config;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

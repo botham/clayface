@@ -25,7 +25,7 @@ public abstract class FacebookBotApi extends ClayFaceBot {
   }
 
   public BotHttpResult verify(String mode, String verifyToken, String challenge) {
-    if (mode.equals("subscribe") && verifyToken.equals(getVerificationToken())) {
+    if ("subscribe".equals(mode) && verifyToken.equals(getVerificationToken())) {
       return new BotHttpResult(Constants.OK, challenge);
     }
     return new BotHttpResult(Constants.UNAUTHORIZED);
