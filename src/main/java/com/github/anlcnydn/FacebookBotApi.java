@@ -31,16 +31,20 @@ public abstract class FacebookBotApi extends ClayFaceBot {
   }
 
   /**
+   * Gets request body from POST endpoint and provides an {@link Update} to {@code onUpdateReceived}.
    *
-   * @param request
-   * @return
+   * @param requestBody message from Facebook
+   * @throws IllegalArgumentException If {@link Update} creation fails
    */
-  public BotHttpResult receive(String request) {
+  public void receive(String requestBody) throws IllegalArgumentException {
+    JSONObject requestJson = Convert.toJson(requestBody);
+    Update update = Update.create(requestJson);
 
-    JSONObject entireRequest = Convert.toJson(request);
-    if (entireRequest != null && onUpdateReceived(new Update(entireRequest))) {
-      return new BotHttpSuccess(Constants.OK);
+    if (requestJson != null && update != null) {
+      onUpdateReceived(update);
+    } else {
+      throw new IllegalArgumentException(
+          "An Update cannot be instantiated from request:\n" + requestBody);
     }
-    return new BotHttpFailure(Constants.INTERNAL_SERVER_ERROR);
   }
 }

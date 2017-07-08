@@ -1,5 +1,7 @@
 package com.github.anlcnydn;
 
+import java.util.Optional;
+
 public class BotHttpFailure extends BotHttpResult {
   private int statusCode;
   private String message;
@@ -21,5 +23,9 @@ public class BotHttpFailure extends BotHttpResult {
   @Override
   public int getStatusCode() {
     return statusCode;
+  }
+
+  public Optional<String> getMessage() {
+    return Optional.ofNullable(message);
   }
 }
