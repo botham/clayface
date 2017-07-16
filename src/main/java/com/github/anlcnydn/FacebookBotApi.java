@@ -13,18 +13,18 @@ public abstract class FacebookBotApi extends ClayFaceBot {
   private static final String LOG_TAG = FacebookBotApi.class.getSimpleName();
 
   public BotHttpResult verify(Map<String, String> urlFields) {
-    if (urlFields != null && urlFields.containsKey(ModeField)
-        && urlFields.containsKey(VerifyTokenField) && urlFields.containsKey(ChallengeField)) {
-      String mode = urlFields.get(ModeField);
-      String verifyToken = urlFields.get(VerifyTokenField);
-      String challenge = urlFields.get(ChallengeField);
+    if (urlFields != null && urlFields.containsKey(MODE_FIELD)
+        && urlFields.containsKey(VERIFY_TOKEN_FIELD) && urlFields.containsKey(CHALLENGE_FIELD)) {
+      String mode = urlFields.get(MODE_FIELD);
+      String verifyToken = urlFields.get(VERIFY_TOKEN_FIELD);
+      String challenge = urlFields.get(CHALLENGE_FIELD);
       return verify(mode, verifyToken, challenge);
     }
     return new BotHttpFailure(Constants.BAD_REQUEST);
   }
 
   public BotHttpResult verify(String mode, String verifyToken, String challenge) {
-    if (mode.equals("subscribe") && verifyToken.equals(getVerificationToken())) {
+    if ("subscribe".equals(mode) && verifyToken.equals(getVerificationToken())) {
       return new BotHttpSuccess(Constants.OK, challenge);
     }
     return new BotHttpFailure(Constants.UNAUTHORIZED);

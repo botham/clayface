@@ -41,19 +41,19 @@ public class SenderTest {
     BotHttpSuccess expected = new BotHttpSuccess(200);
     doReturn(true).when(messageMock).hasUploadable();
     doReturn(expected).when(senderSpy).send(messageMock, any());
-  
+
     BotHttpResult sendResult = senderSpy.sendMessage(messageMock);
     assertEquals(sendResult, expected);
     verify(senderSpy).send(messageMock, json -> json.has("attachment_id"));
   }
-  
+
   @Test
   public void sendMessage_with_non_uploadable_Message() throws Exception {
     Message message = Message.create("someone", "Hey!");
     BotHttpSuccess expected = new BotHttpSuccess(200);
     doReturn(expected).when(senderSpy).send(message,
       any());
-  
+
     BotHttpResult sendResult = senderSpy.sendMessage(message);
     assertEquals(sendResult, expected);
     verify(senderSpy).send(message,
