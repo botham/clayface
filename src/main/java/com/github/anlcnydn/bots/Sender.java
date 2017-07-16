@@ -5,6 +5,8 @@ import com.github.anlcnydn.FacebookApiException;
 import com.github.anlcnydn.interfaces.Uploadable;
 import com.github.anlcnydn.logger.Log;
 import com.github.anlcnydn.models.Message;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -40,6 +42,8 @@ public abstract class Sender {
   private volatile CloseableHttpClient httpclient;
   private volatile RequestConfig requestConfig;
 
+  private Config configuration;
+
   Sender() {
     this.httpclient = HttpClientBuilder.create().setSSLHostnameVerifier(new NoopHostnameVerifier())
         .setConnectionTimeToLive(70, TimeUnit.SECONDS).setMaxConnTotal(100).build();
@@ -48,9 +52,17 @@ public abstract class Sender {
 
     this.requestConfig = configBuilder.setSocketTimeout(75000).setConnectTimeout(75000)
         .setConnectionRequestTimeout(75000).build();
+
+    this.configuration = ConfigFactory.load();
   }
 
-  public abstract String getBotToken();
+  protected String getVerificationToken() {
+    return configuration.getString("clayface.credentials.verification-token");
+  }
+
+  protected String getBotToken() {
+    return configuration.getString("clayface.credentials.bot-token");
+  }
 
   public boolean sendMessage(Message message) throws FacebookApiException {
     if (message == null) {
