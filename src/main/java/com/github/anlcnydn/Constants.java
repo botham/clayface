@@ -13,8 +13,8 @@ public class Constants {
       "Something went wrong while trying to convert to json.";
 
   static final class ValidationConstants {
-    public static final String ModeField = "hub.mode";
-    public static final String VerifyTokenField = "hub.verify_token";
-    public static final String ChallengeField = "hub.challenge";
+    public static final String MODE_FIELD = "hub.mode";
+    public static final String VERIFY_TOKEN_FIELD = "hub.verify_token";
+    public static final String CHALLENGE_FIELD = "hub.challenge";
   }
 }
