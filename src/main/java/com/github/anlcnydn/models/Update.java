@@ -25,25 +25,25 @@ public class Update implements BotApiObject {
   private ArrayList<Message> messages;
   private Date updateTime;
 
-  public Update() {
-    super();
+  private Update(JSONObject node) throws JSONException {
+    this.pageId = node.getJSONArray(ENTRY).getJSONObject(0).getString(ID);
+    this.updateTime = new Date(node.getJSONArray(ENTRY).getJSONObject(0).getLong(TIME));
+    this.messages = new ArrayList<Message>();
+    JSONArray messaging = node.getJSONArray(ENTRY).getJSONObject(0).getJSONArray(MESSAGING);
+    for (int i = 0; i < messaging.length(); i++) {
+      JSONObject message = messaging.getJSONObject(i);
+      if (message.has(MESSAGE)) {
+        messages.add(Message.create(message));
+      }
+    }
   }
 
-  public Update(JSONObject node) {
+  public static Update create(JSONObject node) {
     try {
-
-      this.pageId = node.getJSONArray(ENTRY).getJSONObject(0).getString(ID);
-      this.updateTime = new Date(node.getJSONArray(ENTRY).getJSONObject(0).getLong(TIME));
-      this.messages = new ArrayList<Message>();
-      JSONArray messaging = node.getJSONArray(ENTRY).getJSONObject(0).getJSONArray(MESSAGING);
-      for (int i = 0; i < messaging.length(); i++) {
-        JSONObject message = messaging.getJSONObject(i);
-        if (message.has(MESSAGE)) {
-          messages.add(Message.create(message));
-        }
-      }
-    } catch (JSONException e) {
+      return new Update(node);
+    } catch (Exception e) {
       Log.error(LOG_TAG + ".constructor", Constants.JSON_EXCEPTION_ERROR_MESSAGE, e);
+      return null;
     }
   }
 
