@@ -49,6 +49,25 @@ public abstract class Sender {
 
   private Config configuration;
 
+  private BiFunction<Uploadable, MultipartEntityBuilder, HttpEntity> createHttpEntity =
+      (uploadable, builder) -> {
+        switch (uploadable.getType()) {
+          case IMAGE:
+            return buildHttpEntity(builder, uploadable,
+                Optional.of(ContentType.create("image/png")));
+          case AUDIO:
+            return buildHttpEntity(builder, uploadable,
+                Optional.of(ContentType.create("audio/mp3")));
+          case VIDEO:
+            return buildHttpEntity(builder, uploadable,
+                Optional.of(ContentType.create("video/mp4")));
+          case FILE:
+            return buildHttpEntity(builder, uploadable, Optional.empty());
+          default:
+            return null;
+        }
+      };
+
   Sender() {
     this.httpclient = createHttpClient();
 
@@ -189,23 +208,4 @@ public abstract class Sender {
     });
     return buildOpt.orElse(builder.addBinaryBody(FILEDATA, uploadable.asFile()).build());
   }
-
-  private BiFunction<Uploadable, MultipartEntityBuilder, HttpEntity> createHttpEntity =
-      (uploadable, builder) -> {
-        switch (uploadable.getType()) {
-          case IMAGE:
-            return buildHttpEntity(builder, uploadable,
-                Optional.of(ContentType.create("image/png")));
-          case AUDIO:
-            return buildHttpEntity(builder, uploadable,
-                Optional.of(ContentType.create("audio/mp3")));
-          case VIDEO:
-            return buildHttpEntity(builder, uploadable,
-                Optional.of(ContentType.create("video/mp4")));
-          case FILE:
-            return buildHttpEntity(builder, uploadable, Optional.empty());
-          default:
-            return null;
-        }
-      };
 }
