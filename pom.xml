@@ -23,7 +23,7 @@
 
 
     <description>A facebook messenger bot library</description>
-    <url>http://github.com/anlcnydn/clayface</url>
+    <url>http://github.com/botham/clayface</url>
 
     <licenses>
         <license>
@@ -42,9 +42,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/anlcnydn/clayface.git</connection>
-        <developerConnection>scm:git:ssh://github.com:anlcnydn/clayface.git</developerConnection>
-        <url>http://github.com/anlcnydn/clayface/tree/master</url>
+        <connection>scm:git:git://github.com/botham/clayface.git</connection>
+        <developerConnection>scm:git:ssh://github.com:botham/clayface.git</developerConnection>
+        <url>http://github.com/botham/clayface/tree/master</url>
     </scm>
 
     <build>
